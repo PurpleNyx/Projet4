@@ -1,0 +1,67 @@
+---
+- hosts: logipgsql
+  tasks:
+
+    # Mise à jour de base pour actualiser le conteneur
+    - name: Mise à jour
+      apt:
+        force: yes
+        upgrade: yes
+        update_cache: yes
+
+    # Installation de PyMySQL pour les manipulations de bases à l'aide d'Ansible
+    - name: Installer PyMySQL
+      apt:
+        name: python-pymysql
+        state: present
+
+    # Installation de libpq-devpour les manipulations de bases à l'aide d'Ansible
+    - name: Installer libpq-dev
+      apt:
+        name: libpq-dev
+        state: present
+
+    # Installation de python-psycopg2 pour les manipulations de bases à l'aide d'Ansible
+    - name: Installer python-psycopg2
+      apt:
+        name: python-psycopg2
+        state: present
+
+    # Installation de postgresql
+    - name: Installer postgresql
+      apt:
+        force: yes
+        name: postgresql
+        state: present
+
+    # Ouverture de tous les ports d'écoute (inutile car déploiment du logiciel en local mais permet vérif à distance)
+    - name: Changement config postgresql 
+      shell: sed -i "s/^#listen_addresses =.*/listen_addresses = '0.0.0.0'/g" /etc/postgresql/9.5/main/postgresql.conf
+
+    # Modification parce que postgresql aime être compliqué pour rien
+    - name: modifier pg_hba.cnf pour connexion avec "postgres/postgres"
+      shell: cd && cd /etc/postgresql/9.5/main && sed -i 's/^local   all             postgres                                peer/local   all             postgres                                trust/g' pg_hba.conf && sed -i 's|^host    all             all             127.0.0.1/32            md5|host    all             all             0.0.0.0\/0           md5|g' pg_hba.conf && sed -i 's|^host    all             all             ::1/128                 md5|host    all             all             ::0/0          md5|g' pg_hba.conf
+          
+
+    # Démarrer le service postgresql
+    - name: Démarrer postgresql
+      service:
+        name: postgresql
+        state: restarted
+
+    # Création d'un utilisateur autre que postgres pour utilisation ultérieure
+    - name: Créer un utilisateur postgresql
+      postgresql_user:
+        login_user: postgres
+        login_password: ''
+        user: admin
+        password: admin
+        db: 'postgres'
+        role_attr_flags: SUPERUSER
+        state: present
+      notify: user admin
+
+  handlers:
+   - name: user admin
+     debug:
+       msg: L'utilisateur a été créé

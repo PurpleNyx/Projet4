@@ -1,0 +1,53 @@
+---
+- hosts: logimysql
+  tasks:
+
+    # Mise à jour de base pour actualiser le conteneur
+    - name: Mise à jour
+      apt:
+        force: yes
+        upgrade: yes
+        update_cache: yes
+
+    # Installation de mysql
+    - name: Installer mysql
+      apt:
+        force: yes
+        name: mysql-server
+        state: present
+
+    # Ouverture de tous les ports d'écoute (inutile car déploiment du logiciel en local mais permet vérif à distance)
+    - name: Changement config mysql 
+      shell: sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+
+    # Démarrer le service mysql
+    - name: Démarrer mysql via shell
+      shell: service mysql start
+      notify: mysql start
+
+    # Installation de PyMySQL pour les manipulations de bases à l'aide d'Ansible
+    - name: Installer PyMySQL
+      apt:
+        name: python-pymysql
+        state: present
+
+    # Création d'un utilisateur autre que root pour utilisation ultérieure
+    - name: Créer un utilisateur mysql
+      mysql_user:
+        login_user: root
+        login_password: ''
+        name: admin
+        password: admin
+        host: '%'
+        priv: '*.*:ALL,GRANT'
+        state: present
+      notify: user admin
+
+  handlers:
+   - name: mysql start
+     debug:
+       msg: mysql a été démarré avec succès
+
+   - name: user admin
+     debug:
+       msg: L'utilisateur a été créé

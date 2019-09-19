@@ -1,0 +1,81 @@
+---
+- hosts: manual
+  tasks:
+
+# EN BREF : CHROME C'EST DE LA MERDE, VIVE L'OPEN SOURCE !
+    #- name: get_url chrome
+     # get_url: 
+      #  url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+       # dest: /tmp
+        #mode: 0644
+
+    #- name: Ajout dépot chrome
+     # apt_key:
+      # url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+       #state: present
+
+    - name: Mise à jour
+      apt:
+        upgrade: yes
+        update_cache: yes
+
+    - name: Installer java 8
+      apt:
+        name: openjdk-8-jdk
+        state: present
+
+    - name: Définition de java
+      shell: echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> environment
+
+    - name: Installer firefox
+      apt:
+        force: yes
+        name: firefox
+        state: present
+
+    - name: Installer chromium
+      apt:
+        force: yes
+        name: chromium-browser
+        state: present
+
+# ANNULATION DE L'INSTALLATION DE CHROME SUITE A TA MERE D'ERREUR DE TOI LE MODULE ANSIBLE
+    #- dpkg_selections:
+     #  name: google-chrome-stable_current_amd64.deb
+      # selection: install
+
+    # Pré-requis pour Squirrel
+    #- name: Installer snapd
+     # apt:
+      #  name: snapd
+       # state: present
+
+# ABORT ABORT ABORT ABORT ABORT ABORT ABORT ABORT ABORT
+    #- name: Installer squirrelsql
+     # snap:
+      #  name: squirrelsql
+       # state: present
+
+    - name: Téléchargement SOAP UI 5.5
+      get_url: 
+        url: https://s3.amazonaws.com/downloads.eviware/soapuios/5.4.0/SoapUI-5.4.0-linux-bin.tar.gz
+        dest: /tmp
+        mode: 0644
+
+    - name: Ouverture de la tarball SoapUI dans opt
+      shell: tar -xzf /tmp/SoapUI-5.4.0-linux-bin.tar.gz -C /opt/
+
+    - name: Téléchargement ZAProxy
+      get_url: 
+        url: https://github.com/zaproxy/zaproxy/tarball/master
+        dest: /tmp
+        mode: 0644
+
+    - name: Ouverture de la tarball ZAProxy dans tmp
+      shell: tar -xzf /tmp/zaproxy-zaproxy-v2.8.1-0-ge961093.tar.gz -C /tmp/
+
+    - name: Installer interface ubuntu
+      apt:
+        force: yes
+        name: ubuntu-gnome-desktop
+        state: present

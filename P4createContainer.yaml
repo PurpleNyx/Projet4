@@ -1,0 +1,38 @@
+---
+- hosts: localhost
+  gather_facts: false
+
+  vars:
+    conteneurs:
+      logicalmysql01: 172.18.0.2
+      logicalmysql02: 172.18.0.3
+      logicalpgsql01: 172.18.0.4
+      logicalpgsql02: 172.18.0.5
+      postemanuel: 172.18.0.7
+
+  tasks:
+    - name: Create networks
+      docker_network: 
+        name: netprojet
+        ipam_config:
+          - gateway: 172.18.5.254
+            iprange: 172.18.5.0/24
+            subnet: 172.18.0.0/16
+ 
+    - name: Deployer les conteneurs
+      docker_container:
+        name: "{{ item.key }}"
+        hostname: "{{ item.key }}"
+        image: projet4
+        state: started
+        tty: yes
+        pull: no
+        purge_networks: yes
+        networks:
+          - name : netprojet
+            ipv4_address: "{{ item.value }}"
+
+      loop: "{{ conteneurs | dict2items }}"
+
+    - name: Start SSH server
+      shell : for ct in $(docker ps -q) ; do docker exec -t $ct service ssh start ; done
