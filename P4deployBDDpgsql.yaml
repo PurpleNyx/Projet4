@@ -9,19 +9,25 @@
         upgrade: yes
         update_cache: yes
 
+#########################################
+#                                       #
+### Partie I : Installation pgSQL BDD ###
+#                                       #
+#########################################
+
     # Installation de PyMySQL pour les manipulations de bases à l'aide d'Ansible
     - name: Installer PyMySQL
       apt:
         name: python-pymysql
         state: present
 
-    # Installation de libpq-devpour les manipulations de bases à l'aide d'Ansible
+    # Installation de libpq-devpour les manipulations de bases à l'aide d'Ansible sur postgres
     - name: Installer libpq-dev
       apt:
         name: libpq-dev
         state: present
 
-    # Installation de python-psycopg2 pour les manipulations de bases à l'aide d'Ansible
+    # Installation de python-psycopg2 pour les manipulations de bases à l'aide d'Ansible sur postgres
     - name: Installer python-psycopg2
       apt:
         name: python-psycopg2
@@ -45,7 +51,6 @@
     # Modification parce que postgresql aime être compliqué pour rien
     - name: modifier pg_hba.cnf pour connexion avec "postgres/postgres"
       shell: cd && cd /etc/postgresql/9.5/main && sed -i 's/^local   all             postgres                                peer/local   all             postgres                                trust/g' pg_hba.conf && sed -i 's|^host    all             all             127.0.0.1/32            md5|host    all             all             0.0.0.0\/0           md5|g' pg_hba.conf && sed -i 's|^host    all             all             ::1/128                 md5|host    all             all             ::0/0          md5|g' pg_hba.conf
-          
 
     # Démarrer le service postgresql
     - name: Démarrer postgresql
@@ -65,7 +70,44 @@
         state: present
       notify: user admin
 
+#########################################
+#                                       #
+## Partie II : Installation LogicalDoc ##
+#                                       #
+#########################################
+
+    # Installation de java 8 pour Apache-Tomcat & LogicalDoc
+    - name: Installer java 8
+      apt:
+        name: openjdk-8-jdk
+        state: present
+
+    # Cette étape c'est bien passé du premier coup, exploit à souligner
+    - name: Téléchargement et décompression de Apache-Tomcat-8.5.45
+      unarchive: 
+        src: http://mirror.vorboss.net/apache/tomcat/tomcat-8/v8.5.45/bin/apache-tomcat-8.5.45.tar.gz
+        dest: /home
+        remote_src: yes
+
+    # MODULE DE MERDE ANSIBLE VA TE FAIRE METTRE BIEN PROFOND GET_URL DE LA PUTAIN DE TOI. Merci Shell.
+    - name: Téléchargement de LogicalDoc
+      shell: cd /home/apache-tomcat-8.5.45/webapps && wget https://www.dropbox.com/s/cf999m4djxm6m7z/logicaldoc.war
+
+    # Lancement de Apache-Tomcat-8. En Shell. Parce que le module Ansible service ça marche pas. Etonnant.
+    - name: Lancement de LogicalDoc
+      shell: sh /home/apache-tomcat-8.5.45/bin/startup.sh
+
+#########################################
+#                                       #
+######### Partie III : handlers #########
+#                                       #
+#########################################
+
   handlers:
    - name: user admin
      debug:
        msg: L'utilisateur a été créé
+
+   - name: faille
+     debug:
+       msg: FAILLE DE SECURITE PRESENTE SUR LA BASE DE DONNEES ! Si vous lisez ce message c'est que vous avez oublié de retirer l'ouverture de tous les ports de la BDD.

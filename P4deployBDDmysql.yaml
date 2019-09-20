@@ -9,6 +9,12 @@
         upgrade: yes
         update_cache: yes
 
+#########################################
+#                                       #
+### Partie I : Installation mysql BDD ###
+#                                       #
+#########################################
+
     # Installation de mysql
     - name: Installer mysql
       apt:
@@ -23,6 +29,7 @@
     # SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE
     - name: Changement config mysql 
       shell: sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+      notify: faille
 
     # Démarrer le service mysql
     - name: Démarrer mysql via shell
@@ -47,14 +54,17 @@
         state: present
       notify: user admin
 
+#########################################
+#                                       #
+## Partie II : Installation LogicalDoc ##
+#                                       #
+#########################################
+
     # Installation de java 8 pour Apache-Tomcat & LogicalDoc
     - name: Installer java 8
       apt:
         name: openjdk-8-jdk
         state: present
-
-    #- name: Définition de java
-     # shell: echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> environment
 
     # Cette étape c'est bien passé du premier coup, exploit à souligner
     - name: Téléchargement et décompression de Apache-Tomcat-8.5.45
@@ -62,15 +72,6 @@
         src: http://mirror.vorboss.net/apache/tomcat/tomcat-8/v8.5.45/bin/apache-tomcat-8.5.45.tar.gz
         dest: /home
         remote_src: yes
-
-    #- name: Téléchargement de Apache-Tomcat-8
-     # get_url: 
-      #  url: http://mirror.vorboss.net/apache/tomcat/tomcat-8/v8.5.45/bin/apache-tomcat-8.5.45.tar.gz
-       # dest: /home
-        #mode: 0777
-
-    #- name: Décompression Apache-Tomcat-8
-     # shell: tar xvzf /home/apache-tomcat-8.5.45.tar.gz -C /home
 
     # MODULE DE MERDE ANSIBLE VA TE FAIRE METTRE BIEN PROFOND GET_URL DE LA PUTAIN DE TOI. Merci Shell.
     - name: Téléchargement de LogicalDoc
@@ -80,7 +81,11 @@
     - name: Lancement de LogicalDoc
       shell: sh /home/apache-tomcat-8.5.45/bin/startup.sh
 
-
+#########################################
+#                                       #
+######### Partie III : handlers #########
+#                                       #
+#########################################
   handlers:
    - name: mysql start
      debug:
@@ -89,3 +94,7 @@
    - name: user admin
      debug:
        msg: L'utilisateur a été créé
+
+   - name: faille
+     debug:
+       msg: FAILLE DE SECURITE PRESENTE SUR LA BASE DE DONNEES ! Si vous lisez ce message c'est que vous avez oublié de retirer l'ouverture de tous les ports de la BDD.
