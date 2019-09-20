@@ -17,6 +17,10 @@
         state: present
 
     # Ouverture de tous les ports d'écoute (inutile car déploiment du logiciel en local mais permet vérif à distance)
+    # FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE
+    # SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE
+    # FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE
+    # SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE
     - name: Changement config mysql 
       shell: sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
@@ -42,6 +46,40 @@
         priv: '*.*:ALL,GRANT'
         state: present
       notify: user admin
+
+    # Installation de java 8 pour Apache-Tomcat & LogicalDoc
+    - name: Installer java 8
+      apt:
+        name: openjdk-8-jdk
+        state: present
+
+    #- name: Définition de java
+     # shell: echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> environment
+
+    # Cette étape c'est bien passé du premier coup, exploit à souligner
+    - name: Téléchargement et décompression de Apache-Tomcat-8.5.45
+      unarchive: 
+        src: http://mirror.vorboss.net/apache/tomcat/tomcat-8/v8.5.45/bin/apache-tomcat-8.5.45.tar.gz
+        dest: /home
+        remote_src: yes
+
+    #- name: Téléchargement de Apache-Tomcat-8
+     # get_url: 
+      #  url: http://mirror.vorboss.net/apache/tomcat/tomcat-8/v8.5.45/bin/apache-tomcat-8.5.45.tar.gz
+       # dest: /home
+        #mode: 0777
+
+    #- name: Décompression Apache-Tomcat-8
+     # shell: tar xvzf /home/apache-tomcat-8.5.45.tar.gz -C /home
+
+    # MODULE DE MERDE ANSIBLE VA TE FAIRE METTRE BIEN PROFOND GET_URL DE LA PUTAIN DE TOI. Merci Shell.
+    - name: Téléchargement de LogicalDoc
+      shell: cd /home/apache-tomcat-8.5.45/webapps && wget https://www.dropbox.com/s/cf999m4djxm6m7z/logicaldoc.war
+
+    # Lancement de Apache-Tomcat-8. En Shell. Parce que le module Ansible service ça marche pas. Etonnant.
+    - name: Lancement de LogicalDoc
+      shell: sh /home/apache-tomcat-8.5.45/bin/startup.sh
+
 
   handlers:
    - name: mysql start

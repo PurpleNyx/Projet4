@@ -13,5 +13,8 @@ COPY id_rsa.pub .
 RUN mkdir -p /root/.ssh
 RUN cat id_rsa.pub >> /root/.ssh/authorized_keys 
 
+# Ajout du fichier d'installation automatique de SquirrelSQL
+COPY install .
+
 # Ouvre le port du conteneur
 EXPOSE 7777

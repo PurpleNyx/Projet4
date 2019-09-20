@@ -35,6 +35,10 @@
         state: present
 
     # Ouverture de tous les ports d'écoute (inutile car déploiment du logiciel en local mais permet vérif à distance)
+    # FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE
+    # SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE
+    # FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE FAILLE
+    # SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE SECURITE
     - name: Changement config postgresql 
       shell: sed -i "s/^#listen_addresses =.*/listen_addresses = '0.0.0.0'/g" /etc/postgresql/9.5/main/postgresql.conf
 
