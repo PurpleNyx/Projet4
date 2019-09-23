@@ -9,11 +9,13 @@
         upgrade: yes
         update_cache: yes
 
+
 #########################################
 #                                       #
 ### Partie I : Installation mysql BDD ###
 #                                       #
 #########################################
+
 
     # Installation de mysql
     - name: Installer mysql
@@ -54,14 +56,14 @@
         state: present
       notify: user admin
 
-    # Impossible à utiliser à cause des erreurs présentes dans le dump de la BDD de squashtm
+    # Création de la BDD
     - name: Créer une base logicaldoc et la remplir
       mysql_db:
-       #login_unix_socket: /var/run/mysqld/mysqld.sock
        login_user: root
        name: logicaldoc
        state: import
        target: /dumpmysql.sql
+
 
 #########################################
 #                                       #
@@ -69,36 +71,38 @@
 #                                       #
 #########################################
 
+
     # Installation de java 8 pour Apache-Tomcat & LogicalDoc
     - name: Installer java 8
       apt:
         name: openjdk-8-jdk
         state: present
 
-    # Cette étape c'est bien passé du premier coup, exploit à souligner
+    # Récupération des sources d'Apache-Tomcat-8
     - name: Téléchargement et décompression de Apache-Tomcat-8.5.46
       unarchive: 
         src: http://apache.mirrors.benatherton.com/tomcat/tomcat-8/v8.5.46/bin/apache-tomcat-8.5.46.tar.gz
         dest: /home
         remote_src: yes
 
-    # MODULE DE MERDE ANSIBLE VA TE FAIRE METTRE BIEN PROFOND GET_URL DE LA PUTAIN DE TOI. Merci Shell.
+    # Téléchargement de LogicalDoc (module Ansible get_url non fonctionnel pour une exécution ultérieure dans Tomcat)
     - name: Téléchargement de LogicalDoc
       shell: cd /home/apache-tomcat-8.5.46/webapps && wget https://www.dropbox.com/s/cf999m4djxm6m7z/logicaldoc.war
-
-    # Lancement de Apache-Tomcat-8. En Shell. Parce que le module Ansible service ça marche pas. Etonnant.
-    #- name: Lancement de LogicalDoc
-     # shell: sh /home/apache-tomcat-8.5.46/bin/startup.sh && sleep 10
-
 
     # Extraction du .war via jar
     - name: Extraction de logicaldoc.war
       shell: cd /home/apache-tomcat-8.5.46/webapps && mkdir logicaldoc && cd logicaldoc && jar -xvf /home/apache-tomcat-8.5.46/webapps/logicaldoc.war
+
     
+#########################################
+#                                       #
+## Partie III : Paramétrage LogicalDoc ##
+#                                       #
+#########################################
 
 
+    # lineinfile est un module Ansible de "find and replace" plus efficace que sed en shell
 
-    # Test modif fichier avec Ansible
     - name: Modification context.properties jdbc.dbms
       lineinfile:
         path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
@@ -130,18 +134,37 @@
         line: jdbc.username=logicaldoc
 
 
-    # Procédure de relance de Apache Tomcat
-    #- name: Lancement de LogicalDoc
-     # shell: sh /home/apache-tomcat-8.5.46/bin/shutdown.sh && sleep 10
+#########################################
+#                                       #
+#### Partie IV : Lancement du Tomcat ####
+#                                       #
+#########################################
 
 
+    # Création d'un fichier de lancement de Apache-Tomcat
+    # Nécessaire pour un lancement automatique sans dépassement de mémoire
+    - name: Création fichier de lancement sh
+      shell: echo "#!/bin/sh" > startall.sh
+
+    - name: Ajout de l'option de séparation des processus
+      shell: echo "set -m" >> startall.sh
+
+    - name: Ajout du lancement de Apache-Tomcat-8
+      shell: echo "sh /home/apache-tomcat-8.5.46/bin/startup.sh" >> startall.sh
+
+    - name: Lancement de Apache-Tomcat-8
+      shell: sh startall.sh
+      register: TomcatLaunch
+    - debug: var=TomcatLaunch
 
 
 #########################################
 #                                       #
-######### Partie III : handlers #########
+########## Partie V : handlers ##########
 #                                       #
 #########################################
+
+
   handlers:
    - name: mysql start
      debug:
