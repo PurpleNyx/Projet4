@@ -87,8 +87,13 @@
       shell: cd /home/apache-tomcat-8.5.46/webapps && wget https://www.dropbox.com/s/cf999m4djxm6m7z/logicaldoc.war
 
     # Lancement de Apache-Tomcat-8. En Shell. Parce que le module Ansible service ça marche pas. Etonnant.
-    - name: Lancement de LogicalDoc
-      shell: sh /home/apache-tomcat-8.5.46/bin/startup.sh && sleep 10
+    #- name: Lancement de LogicalDoc
+     # shell: sh /home/apache-tomcat-8.5.46/bin/startup.sh && sleep 10
+
+
+    # Extraction du .war via jar
+    - name: Extraction de logicaldoc.war
+      shell: cd /home/apache-tomcat-8.5.46/webapps && mkdir logicaldoc && cd logicaldoc && jar -xvf /home/apache-tomcat-8.5.46/webapps/logicaldoc.war
     
 
 
@@ -126,11 +131,8 @@
 
 
     # Procédure de relance de Apache Tomcat
-    - name: Lancement de LogicalDoc
-      shell: sh /home/apache-tomcat-8.5.46/bin/shutdown.sh && sleep 10
-
-    - name: Lancement de LogicalDoc 2
-      shell: sh /home/apache-tomcat-8.5.46/bin/startup.sh
+    #- name: Lancement de LogicalDoc
+     # shell: sh /home/apache-tomcat-8.5.46/bin/shutdown.sh && sleep 10
 
 
 

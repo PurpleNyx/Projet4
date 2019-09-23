@@ -18,7 +18,7 @@ COPY install .
 
 # Ajout des dump propre des BDD
 COPY dumpmysql.sql .
-COPY dumppostgres.sql .
+COPY logicaldoc.sql /root
 
 # Ouvre le port du conteneur
 EXPOSE 7777

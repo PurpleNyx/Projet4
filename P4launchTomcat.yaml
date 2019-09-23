@@ -1,0 +1,7 @@
+---
+- hosts: logimysql
+  tasks:
+    - name: Lancement de LogicalDoc 2
+      shell: sh /home/apache-tomcat-8.5.46/bin/startup.sh
+      register: yolo
+    - debug: var=yolo    
