@@ -16,5 +16,9 @@ RUN cat id_rsa.pub >> /root/.ssh/authorized_keys
 # Ajout du fichier d'installation automatique de SquirrelSQL
 COPY install .
 
+# Ajout des dump propre des BDD
+COPY dumpmysql.sql .
+COPY dumppostgres.sql .
+
 # Ouvre le port du conteneur
 EXPOSE 7777
