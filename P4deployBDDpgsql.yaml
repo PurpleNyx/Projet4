@@ -63,18 +63,27 @@
       postgresql_user:
         login_user: postgres
         login_password: ''
-        user: admin
-        password: admin
+        user: logicaldoc
+        password: logicaldoc
         db: 'postgres'
         role_attr_flags: SUPERUSER
         state: present
       notify: user admin
+
+
+    - name: Créer la base LogicalDoc
+      postgresql_db:
+        login_user: postgres
+        name: logicaldoc 
+        state: present
+        target: /dumppostgres.sql
 
 #########################################
 #                                       #
 ## Partie II : Installation LogicalDoc ##
 #                                       #
 #########################################
+
 
     # Installation de java 8 pour Apache-Tomcat & LogicalDoc
     - name: Installer java 8
@@ -83,19 +92,60 @@
         state: present
 
     # Cette étape c'est bien passé du premier coup, exploit à souligner
-    - name: Téléchargement et décompression de Apache-Tomcat-8.5.45
+    - name: Téléchargement et décompression de Apache-Tomcat-8.5.46
       unarchive: 
-        src: http://mirror.vorboss.net/apache/tomcat/tomcat-8/v8.5.45/bin/apache-tomcat-8.5.45.tar.gz
+        src: http://apache.mirrors.benatherton.com/tomcat/tomcat-8/v8.5.46/bin/apache-tomcat-8.5.46.tar.gz
         dest: /home
         remote_src: yes
 
     # MODULE DE MERDE ANSIBLE VA TE FAIRE METTRE BIEN PROFOND GET_URL DE LA PUTAIN DE TOI. Merci Shell.
     - name: Téléchargement de LogicalDoc
-      shell: cd /home/apache-tomcat-8.5.45/webapps && wget https://www.dropbox.com/s/cf999m4djxm6m7z/logicaldoc.war
+      shell: cd /home/apache-tomcat-8.5.46/webapps && wget https://www.dropbox.com/s/cf999m4djxm6m7z/logicaldoc.war
 
     # Lancement de Apache-Tomcat-8. En Shell. Parce que le module Ansible service ça marche pas. Etonnant.
     - name: Lancement de LogicalDoc
-      shell: sh /home/apache-tomcat-8.5.45/bin/startup.sh
+      shell: sh /home/apache-tomcat-8.5.46/bin/startup.sh && sleep 10
+
+    # Modification des fichiers de configuration de logicaldoc pour permettre la connexion à la base de données
+    - name: Modification context.properties jdbc.dbms
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.dbms=hsqldb
+        line: jdbc.dbms=postgres
+
+    - name: Modification context.properties jdbc.driver
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.driver=org.hsqldb.jdbc.JDBCDriver
+        line: jdbc.driver=org.postgresql.Driver
+
+    - name: Modification context.properties jdbc.url
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.url=jdbc:hsqldb:mem:logicaldoc
+        line: jdbc.url=jdbc:jdbc:postgresql://localhost:5432/logicaldoc
+
+    - name: Modification context.properties jdbc.password
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.password=
+        line: jdbc.password=logicaldoc
+
+    - name: Modification context.properties jdbc.username
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.username=sa 
+        line: jdbc.username=logicaldoc
+
+
+    # Procédure de relance de Apache Tomcat
+    - name: Lancement de LogicalDoc
+      shell: sh /home/apache-tomcat-8.5.46/bin/shutdown.sh && sleep 10
+
+    - name: Lancement de LogicalDoc 2
+      shell: sh /home/apache-tomcat-8.5.46/bin/startup.sh
+
+
 
 #########################################
 #                                       #

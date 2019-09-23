@@ -30,7 +30,7 @@
     - name: Changement config mysql 
       shell: sed -i 's/127.0.0.1/0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
       notify: faille
-
+      
     # Démarrer le service mysql
     - name: Démarrer mysql via shell
       shell: service mysql start
@@ -47,12 +47,21 @@
       mysql_user:
         login_user: root
         login_password: ''
-        name: admin
-        password: admin
+        name: logicaldoc
+        password: logicaldoc
         host: '%'
         priv: '*.*:ALL,GRANT'
         state: present
       notify: user admin
+
+    # Impossible à utiliser à cause des erreurs présentes dans le dump de la BDD de squashtm
+    - name: Créer une base logicaldoc et la remplir
+      mysql_db:
+       #login_unix_socket: /var/run/mysqld/mysqld.sock
+       login_user: root
+       name: logicaldoc
+       state: import
+       target: /dumpmysql.sql
 
 #########################################
 #                                       #
@@ -67,19 +76,64 @@
         state: present
 
     # Cette étape c'est bien passé du premier coup, exploit à souligner
-    - name: Téléchargement et décompression de Apache-Tomcat-8.5.45
+    - name: Téléchargement et décompression de Apache-Tomcat-8.5.46
       unarchive: 
-        src: http://mirror.vorboss.net/apache/tomcat/tomcat-8/v8.5.45/bin/apache-tomcat-8.5.45.tar.gz
+        src: http://apache.mirrors.benatherton.com/tomcat/tomcat-8/v8.5.46/bin/apache-tomcat-8.5.46.tar.gz
         dest: /home
         remote_src: yes
 
     # MODULE DE MERDE ANSIBLE VA TE FAIRE METTRE BIEN PROFOND GET_URL DE LA PUTAIN DE TOI. Merci Shell.
     - name: Téléchargement de LogicalDoc
-      shell: cd /home/apache-tomcat-8.5.45/webapps && wget https://www.dropbox.com/s/cf999m4djxm6m7z/logicaldoc.war
+      shell: cd /home/apache-tomcat-8.5.46/webapps && wget https://www.dropbox.com/s/cf999m4djxm6m7z/logicaldoc.war
 
     # Lancement de Apache-Tomcat-8. En Shell. Parce que le module Ansible service ça marche pas. Etonnant.
     - name: Lancement de LogicalDoc
-      shell: sh /home/apache-tomcat-8.5.45/bin/startup.sh
+      shell: sh /home/apache-tomcat-8.5.46/bin/startup.sh && sleep 10
+    
+
+
+
+    # Test modif fichier avec Ansible
+    - name: Modification context.properties jdbc.dbms
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.dbms=hsqldb
+        line: jdbc.dbms=mysql
+
+    - name: Modification context.properties jdbc.driver
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.driver=org.hsqldb.jdbc.JDBCDriver
+        line: jdbc.driver=com.mysql.jdbc.Driver
+
+    - name: Modification context.properties jdbc.url
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.url=jdbc:hsqldb:mem:logicaldoc
+        line: jdbc.url=jdbc:mysql://localhost:3306/logicaldoc
+
+    - name: Modification context.properties jdbc.password
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.password=
+        line: jdbc.password=logicaldoc
+
+    - name: Modification context.properties jdbc.username
+      lineinfile:
+        path: /home/apache-tomcat-8.5.46/webapps/logicaldoc/WEB-INF/classes/context.properties
+        regexp: jdbc.username=sa 
+        line: jdbc.username=logicaldoc
+
+
+    # Procédure de relance de Apache Tomcat
+    - name: Lancement de LogicalDoc
+      shell: sh /home/apache-tomcat-8.5.46/bin/shutdown.sh && sleep 10
+
+    - name: Lancement de LogicalDoc 2
+      shell: sh /home/apache-tomcat-8.5.46/bin/startup.sh
+
+
+
 
 #########################################
 #                                       #
