@@ -178,7 +178,21 @@
 
 #########################################
 #                                       #
-########## Partie V : handlers ##########
+### Partie V : Logiciel en complément ###
+#                                       #
+#########################################
+
+
+    - name: Téléchargement et décompression de SoapUI-5.4
+      unarchive: 
+        src: https://s3.amazonaws.com/downloads.eviware/soapuios/5.4.0/SoapUI-5.4.0-linux-bin.tar.gz
+        dest: /opt
+        remote_src: yes
+
+
+#########################################
+#                                       #
+###### Partie VI : Appels handlers ######
 #                                       #
 #########################################
 
@@ -191,3 +205,4 @@
    - name: faille
      debug:
        msg: FAILLE DE SECURITE PRESENTE SUR LA BASE DE DONNEES ! Si vous lisez ce message c'est que vous avez oublié de retirer l'ouverture de tous les ports de la BDD.
+

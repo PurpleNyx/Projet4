@@ -160,16 +160,26 @@
 
 #########################################
 #                                       #
-########## Partie V : handlers ##########
+### Partie V : Logiciel en complément ###
+#                                       #
+#########################################
+
+
+    - name: Téléchargement et décompression de SoapUI-5.4
+      unarchive: 
+        src: https://s3.amazonaws.com/downloads.eviware/soapuios/5.4.0/SoapUI-5.4.0-linux-bin.tar.gz
+        dest: /opt
+        remote_src: yes
+
+
+#########################################
+#                                       #
+###### Partie VI : Appels handlers ######
 #                                       #
 #########################################
 
 
   handlers:
-   - name: mysql start
-     debug:
-       msg: mysql a été démarré avec succès
-
    - name: user admin
      debug:
        msg: L'utilisateur a été créé
