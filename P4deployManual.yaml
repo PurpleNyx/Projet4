@@ -2,27 +2,17 @@
 - hosts: manual
   tasks:
 
-# EN BREF : CHROME C'EST DE LA MERDE, VIVE L'OPEN SOURCE !
-    #- name: get_url chrome
-     # get_url: 
-      #  url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-       # dest: /tmp
-        #mode: 0644
-
-    #- name: Ajout dépot chrome
-     # apt_key:
-      # url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-       #state: present
 
     - name: Mise à jour
       apt:
         upgrade: yes
         update_cache: yes
 
-# ANNULATION DE L'INSTALLATION DE CHROME SUITE A TA MERE D'ERREUR DE TOI LE MODULE ANSIBLE DPKG
-    #- dpkg_selections:
-     #  name: google-chrome-stable_current_amd64.deb
-      # selection: install
+#########################################
+#                                       #
+### Partie I : Logiciel en complément ###
+#                                       #
+#########################################
 
     - name: Installer java 8
       apt:

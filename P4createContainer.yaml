@@ -8,9 +8,8 @@
         logicalmysql02: 172.18.0.3
         logicalpgsql01: 172.18.0.4
         logicalpgsql02: 172.18.0.5
-        postemanuel: 172.18.0.7
     - manu:
-        decoy: 172.18.0.8
+        postemanuel: 172.18.0.7
 
   tasks:
     - name: Create networks
@@ -39,11 +38,12 @@
       docker_container:
         name: "{{ item.key }}"
         hostname: "{{ item.key }}"
-        image: projet4
+        image: manual
         state: started
         tty: yes
         pull: no
         purge_networks: yes
+        published_ports: 5901:5901
         networks:
           - name : netprojet
             ipv4_address: "{{ item.value }}"

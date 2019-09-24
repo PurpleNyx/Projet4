@@ -184,6 +184,10 @@
      debug:
        msg: L'utilisateur a été créé
 
+   - name: mysql start
+     debug:
+       msg: Démarrage du service de base de données
+
    - name: faille
      debug:
        msg: FAILLE DE SECURITE PRESENTE SUR LA BASE DE DONNEES ! Si vous lisez ce message c'est que vous avez oublié de retirer l'ouverture de tous les ports de la BDD.

@@ -1,0 +1,18 @@
+# Base du conteneur
+FROM consol/ubuntu-xfce-vnc
+LABEL Description="Projet 4 - Image de base - Interface graphique"
+
+USER 0
+
+# Installation de python & open-ssh
+RUN apt-get update
+RUN apt upgrade -y && apt install -y python
+RUN apt install -y openssh-server
+
+# Ajout de la clé ssh dans le conteneur
+COPY id_rsa.pub .
+RUN mkdir -p /root/.ssh
+RUN cat id_rsa.pub >> /root/.ssh/authorized_keys
+
+# Ouvre le port du conteneur
+EXPOSE 5901
