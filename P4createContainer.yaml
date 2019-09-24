@@ -24,7 +24,7 @@
       docker_container:
         name: "{{ item.key }}"
         hostname: "{{ item.key }}"
-        image: automatic
+        image: projet4
         state: started
         tty: yes
         pull: no
