@@ -10,8 +10,10 @@ RUN apt install -y openssh-server
 
 # Ajout de la clé ssh dans le conteneur
 COPY id_rsa.pub .
+COPY id_rsa_sal.pub .
 RUN mkdir -p /root/.ssh
 RUN cat id_rsa.pub >> /root/.ssh/authorized_keys 
+RUN cat id_rsa_sal.pub >> /root/.ssh/authorized_keys 
 
 # Ajout du fichier d'installation automatique de SquirrelSQL
 COPY install .
