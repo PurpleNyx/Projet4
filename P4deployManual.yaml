@@ -40,7 +40,7 @@
       shell: cp /home/SquirrelSQL-master/driver_ubuntu/mysql-connector-java-8.0.17.jar /home/formation/squirrel-sql-4.0.0/plugins/mysql && cp /home/SquirrelSQL-master/driver_ubuntu/postgresql.jar /home/formation/squirrel-sql-4.0.0/plugins/postgres/lib
     
     - name: Lancement de l'interface Squirrel Client 
-      shell: cd /home/formation/squirrel-sql-4.0.0 && java -jar squirrel-squirrel-sql.jar
+      shell: cd /home/formation/squirrel-sql-4.0.0 && java -jar squirrel-sql.jar
 
     - name: Installer firefox
       apt:
