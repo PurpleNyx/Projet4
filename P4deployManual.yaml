@@ -34,7 +34,7 @@
         remote_src: yes
         
     - name: Installation de SquirrelSQL 
-      shell: cd /home/SquirrelSQL-master/ && cp java -jar squirrel-sql-4.0.0-standard.jar install 
+      shell: cd /home/SquirrelSQL-master/ && java -jar squirrel-sql-4.0.0-standard.jar install 
       
     - name: Déplacement des drivers postgresql et mysql dans le dossier d'installation de SquirrelSQL 
       shell: cp /home/SquirrelSQL-master/driver_ubuntu/mysql-connector-java-8.0.17.jar /home/formation/squirrel-sql-4.0.0/plugins/mysql && cp cp /headless/SquirrelSQL-master/driver_ubuntu/postgresql.jar /home/formation/squirrel-sql-4.0.0/plugins/postgres/lib
