@@ -37,7 +37,7 @@
       shell: cp /home/install /home/SquirrelSQL-master/ && cd /home/SquirrelSQL-master/ && java -jar squirrel-sql-4.0.0-standard.jar install 
       
     - name: Déplacement des drivers postgresql et mysql dans le dossier d'installation de SquirrelSQL 
-      shell: cp /home/SquirrelSQL-master/driver_ubuntu/mysql-connector-java-8.0.17.jar /home/formation/squirrel-sql-4.0.0/plugins/mysql && cp /headless/SquirrelSQL-master/driver_ubuntu/postgresql.jar /home/formation/squirrel-sql-4.0.0/plugins/postgres/lib
+      shell: cp /home/SquirrelSQL-master/driver_ubuntu/mysql-connector-java-8.0.17.jar /home/formation/squirrel-sql-4.0.0/plugins/mysql && cp /home/SquirrelSQL-master/driver_ubuntu/postgresql.jar /home/formation/squirrel-sql-4.0.0/plugins/postgres/lib
     
     - name: Lancement de l'interface Squirrel Client 
       shell: cd /home/formation/squirrel-sql-4.0.0 && java -jar squirrel-squirrel-sql.jar
