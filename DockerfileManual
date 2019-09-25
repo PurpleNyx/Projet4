@@ -16,7 +16,7 @@ RUN mkdir -p /root/.ssh
 RUN cat id_rsa.pub >> /root/.ssh/authorized_keys 
 RUN cat id_rsa_sal.pub >> /root/.ssh/authorized_keys 
 
-COPY install .
+COPY install /home
 
 # Ouvre le port du conteneur
 EXPOSE 5901
